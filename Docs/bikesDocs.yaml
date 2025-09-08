@@ -1,0 +1,221 @@
+openapi: 3.0.0
+info:
+  title: Bike Management API
+  version: 1.0.0
+  description: API for managing bikes in the shop
+tags:
+  - name: Bikes
+    description: Bike management API
+
+paths:
+  /api/bikes/add:
+    post:
+      summary: Add a new bike
+      tags: [Bikes]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - manufacturer
+                - model
+                - year
+                - newOrUsed
+                - bikeType
+              properties:
+                name:
+                  type: string
+                  example: SpeedX Pro
+                manufacturer:
+                  type: string
+                  example: SpeedX
+                model:
+                  type: string
+                  example: Pro2021
+                year:
+                  type: integer
+                  example: 2023
+                newOrUsed:
+                  type: string
+                  enum: [new, used]
+                  example: new
+                specs:
+                  type: string
+                  example: Carbon fiber frame, Shimano gears
+                isFeatured:
+                  type: boolean
+                  example: true
+                pictures:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                bikeType:
+                  type: string
+                  enum: [chinese, indian, electric, japanese]
+                  example: chinese
+      responses:
+        '201':
+          description: Bike added successfully
+        '500':
+          description: Server error while adding bike
+
+  /api/bikes/deletebike/{id}:
+    delete:
+      summary: Delete a bike by ID
+      tags: [Bikes]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: Bike ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Bike deleted successfully
+        '404':
+          description: Bike not found
+
+  /api/bikes/deleteallbikes:
+    delete:
+      summary: Delete all bikes
+      tags: [Bikes]
+      responses:
+        '200':
+          description: All bikes deleted successfully
+        '404':
+          description: No bikes found to delete
+
+  /api/bikes/manufacturers:
+    post:
+      summary: Get distinct manufacturers
+      tags: [Bikes]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newOrUsed:
+                  type: string
+                  enum: [new, used]
+      responses:
+        '200':
+          description: List of manufacturers
+
+  /api/bikes/models:
+    post:
+      summary: Get distinct models
+      tags: [Bikes]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newOrUsed:
+                  type: string
+                manufacturer:
+                  type: string
+      responses:
+        '200':
+          description: List of models
+
+  /api/bikes/years:
+    post:
+      summary: Get distinct years
+      tags: [Bikes]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newOrUsed:
+                  type: string
+                manufacturer:
+                  type: string
+                model:
+                  type: string
+      responses:
+        '200':
+          description: List of years
+
+  /api/bikes/search:
+    post:
+      summary: Search bikes with filters
+      tags: [Bikes]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newOrUsed:
+                  type: string
+                manufacturer:
+                  type: string
+                model:
+                  type: string
+                year:
+                  type: integer
+      responses:
+        '200':
+          description: Search results
+
+  /api/bikes/bikesbytype:
+    post:
+      summary: Get bikes by type
+      tags: [Bikes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - bikeType
+              properties:
+                bikeType:
+                  type: string
+                  enum: [chinese, indian, electric, japanees]
+                  example: chinese
+      responses:
+        '200':
+          description: List of bikes by selected type
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bike'
+        '404':
+          description: No bikes found for selected type
+        '500':
+          description: Server error while fetching bikes by type
+
+
+  /api/bikes/featured:
+    get:
+      summary: Get all featured bikes
+      tags: [Bikes]
+      description: Returns all bikes where `isFeatured` is true
+      responses:
+        '200':
+          description: A list of featured bikes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bike'
+        '500':
+          description: Server error while fetching featured bikes
